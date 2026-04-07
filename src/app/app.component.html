@@ -1,0 +1,43 @@
+<main class="container">
+  <section class="hero card">
+    <p class="eyebrow">Angular + API native Riot</p>
+    <h1>League of Legends State</h1>
+    <p>Entre un Riot ID pour récupérer le profil et les stats classées via l'API officielle.</p>
+  </section>
+
+  <section class="card search">
+    <h2>Recherche joueur</h2>
+    <form (ngSubmit)="loadProfile()" class="form-grid">
+      <label>
+        Game Name
+        <input type="text" [(ngModel)]="gameName" name="gameName" required />
+      </label>
+
+      <label>
+        Tag Line
+        <input type="text" [(ngModel)]="tagLine" name="tagLine" required />
+      </label>
+
+      <button type="submit" [disabled]="loading()">{{ loading() ? 'Chargement...' : 'Charger stats' }}</button>
+    </form>
+
+    <p class="error" *ngIf="error()">{{ error() }}</p>
+  </section>
+
+  <section class="card" *ngIf="account() as account">
+    <h2>Profil</h2>
+    <p><strong>Riot ID:</strong> {{ account.gameName }}#{{ account.tagLine }}</p>
+    <p><strong>PUUID:</strong> <span class="mono">{{ account.puuid }}</span></p>
+  </section>
+
+  <section class="card" *ngIf="ranked().length > 0">
+    <h2>Files classées</h2>
+    <div class="rank-grid">
+      <article *ngFor="let entry of ranked()" class="rank-card">
+        <h3>{{ entry.queueType }}</h3>
+        <p>{{ entry.tier }} {{ entry.rank }} · {{ entry.leaguePoints }} LP</p>
+        <p>{{ entry.wins }}W / {{ entry.losses }}L · WR {{ winRate(entry) }}%</p>
+      </article>
+    </div>
+  </section>
+</main>

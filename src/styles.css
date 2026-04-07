@@ -1,0 +1,20 @@
+:root {
+  --bg: #050913;
+  --surface: #111a2f;
+  --gold: #c8aa6e;
+  --text: #eef2ff;
+  --muted: #b8c1de;
+  --accent: #3a63d7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top right, #1b2f59 0%, #050913 50%), #050913;
+}
