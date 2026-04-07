@@ -1,0 +1,111 @@
+<main class="container">
+  <section class="hero card">
+    <p class="eyebrow">Page 1 · Champions</p>
+    <h1>Hub League of Legends</h1>
+    <p>
+      Cette première page sert de recherche rapide de champions et de point d'entrée pour les joueurs.
+      L'objectif est d'avoir un site simple, rapide et facile d'utilisation.
+    </p>
+  </section>
+
+  <section class="card search-champion">
+    <h2>Recherche de champion (Signals)</h2>
+
+    <div class="form-grid champion-controls">
+      <label>
+        Nom du champion
+        <input
+          type="text"
+          [ngModel]="championQuery()"
+          (ngModelChange)="updateQuery($event)"
+          placeholder="Ex: Ahri, Jinx, Zed..."
+        />
+      </label>
+    </div>
+
+    <div class="role-filters">
+      <button
+        type="button"
+        [class.active]="selectedRole() === 'Tous'"
+        (click)="pickRole('Tous')"
+      >Tous</button>
+      <button
+        type="button"
+        [class.active]="selectedRole() === 'Assassin'"
+        (click)="pickRole('Assassin')"
+      >Assassin</button>
+      <button
+        type="button"
+        [class.active]="selectedRole() === 'Mage'"
+        (click)="pickRole('Mage')"
+      >Mage</button>
+      <button
+        type="button"
+        [class.active]="selectedRole() === 'Tank'"
+        (click)="pickRole('Tank')"
+      >Tank</button>
+      <button
+        type="button"
+        [class.active]="selectedRole() === 'Fighter'"
+        (click)="pickRole('Fighter')"
+      >Fighter</button>
+      <button
+        type="button"
+        [class.active]="selectedRole() === 'Marksman'"
+        (click)="pickRole('Marksman')"
+      >Marksman</button>
+      <button
+        type="button"
+        [class.active]="selectedRole() === 'Support'"
+        (click)="pickRole('Support')"
+      >Support</button>
+    </div>
+
+    <p class="muted">{{ filteredChampions().length }} champion(s) trouvé(s).</p>
+
+    <div class="champion-grid">
+      <article class="rank-card" *ngFor="let champion of filteredChampions()">
+        <h3>{{ champion.name }}</h3>
+        <p>Rôle: {{ champion.role }}</p>
+        <p>Lane: {{ champion.lane }}</p>
+        <p>Difficulté: {{ champion.difficulty }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="card search">
+    <h2>Recherche joueur (API Riot)</h2>
+    <form (ngSubmit)="loadProfile()" class="form-grid">
+      <label>
+        Game Name
+        <input type="text" [(ngModel)]="gameName" name="gameName" required />
+      </label>
+
+      <label>
+        Tag Line
+        <input type="text" [(ngModel)]="tagLine" name="tagLine" required />
+      </label>
+
+      <button type="submit" [disabled]="loading()">{{ loading() ? 'Chargement...' : 'Charger stats' }}</button>
+    </form>
+
+    <p class="error" *ngIf="error()">{{ error() }}</p>
+  </section>
+
+  <section class="card" *ngIf="account() as account">
+    <h2>Profil</h2>
+    <p><strong>Riot ID:</strong> {{ account.gameName }}#{{ account.tagLine }}</p>
+    <p><strong>PUUID:</strong> <span class="mono">{{ account.puuid }}</span></p>
+  </section>
+
+  <section class="card" *ngIf="ranked().length > 0">
+    <h2>Files classées</h2>
+    <div class="rank-grid">
+      <article *ngFor="let entry of ranked()" class="rank-card">
+        <h3>{{ entry.queueType }}</h3>
+        <p>{{ entry.tier }} {{ entry.rank }} · {{ entry.leaguePoints }} LP</p>
+        <p>{{ entry.wins }}W / {{ entry.losses }}L · WR {{ winRate(entry) }}%</p>
+      </article>
+    </div>
+  </section>
+</main>
