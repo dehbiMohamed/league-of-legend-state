@@ -1,8 +1,6 @@
 # League of Legend State (Angular)
 
-Premier jet en Angular pour un site LoL facile d'utilisation:
-- page d'accueil orientée recherche de champions (Signals)
-- bloc de recherche joueur via l'API officielle Riot
+Premier jet en Angular pour consulter des stats League of Legends via l'API officielle Riot.
 
 ## Lancer le projet
 
