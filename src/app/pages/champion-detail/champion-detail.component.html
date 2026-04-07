@@ -1,0 +1,258 @@
+<main class="min-h-screen px-6 py-8 sm:px-8 lg:px-12">
+  <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+    <a
+      routerLink="/champions"
+      class="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-sky-400/30 hover:bg-sky-400/10 hover:text-white"
+    >
+      <span aria-hidden="true">&lt;</span>
+      Retour a la recherche
+    </a>
+
+    <section *ngIf="loading()" class="rounded-[2rem] border border-white/10 bg-slate-950/70 px-6 py-5 text-sm text-slate-300 backdrop-blur-xl">
+      Chargement des stuffs populaires...
+    </section>
+
+    <section *ngIf="error()" class="rounded-[2rem] border border-rose-400/20 bg-rose-400/10 px-6 py-5 text-sm text-rose-200">
+      {{ error() }}
+    </section>
+
+    <ng-container *ngIf="!loading() && champion() as champion">
+      <section class="overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/70 shadow-2xl shadow-sky-950/20 backdrop-blur-xl">
+        <div class="relative">
+          <img [src]="champion.splashUrl" [alt]="champion.name" class="h-[260px] w-full object-cover sm:h-[340px] lg:h-[400px]" />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+
+          <div class="absolute inset-x-0 bottom-0 p-6 sm:p-8 lg:p-10">
+            <div class="max-w-3xl space-y-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-sky-300/80">Champion Meta</p>
+
+              <div>
+                <h1 class="font-display text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                  {{ champion.name }}
+                </h1>
+                <p class="mt-2 text-lg text-slate-300 sm:text-xl">{{ champion.title }}</p>
+              </div>
+
+              <p class="max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                Vue detaillee des stuffs populaires en ranked selon le palier elo. Choisis un tier pour comparer rapidement les
+                variations de start, de core build et des items les plus joues.
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+                <span class="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-200">
+                  Source {{ builds()?.source || 'LeagueOfGraphs' }}
+                </span>
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200">
+                  Queue ranked
+                </span>
+                <span
+                  *ngFor="let tag of champion.tags"
+                  class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200"
+                >
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="builds() as builds" class="grid gap-6">
+        <article class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 backdrop-blur-xl">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-2xl">
+              <p class="text-xs font-semibold uppercase tracking-[0.26em] text-sky-300/80">Comparaison</p>
+              <h2 class="mt-3 font-display text-2xl font-bold text-white sm:text-3xl">Meta build par elo</h2>
+              <p class="mt-3 text-sm leading-7 text-slate-300 sm:text-base">
+                Chaque carte resume le core build dominant du palier. Clique sur un elo pour afficher les stuffs populaires en
+                detail.
+              </p>
+            </div>
+
+            <a
+              [href]="selectedTier()?.sourceUrl || '#'"
+              target="_blank"
+              rel="noreferrer"
+              class="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-100 transition hover:border-sky-400/30 hover:bg-sky-400/10"
+            >
+              Ouvrir la source
+            </a>
+          </div>
+
+          <div class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <button
+              *ngFor="let tier of builds.tiers; trackBy: tierTrackBy"
+              type="button"
+              (click)="selectTier(tier.key)"
+              class="rounded-[1.5rem] border p-4 text-left transition"
+              [class.border-sky-400/40]="activeTier() === tier.key"
+              [class.bg-sky-400/10]="activeTier() === tier.key"
+              [class.shadow-lg]="activeTier() === tier.key"
+              [class.shadow-sky-950/30]="activeTier() === tier.key"
+              [class.border-white/10]="activeTier() !== tier.key"
+              [class.bg-white/[0.03]]="activeTier() !== tier.key"
+            >
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-sm font-semibold uppercase tracking-[0.16em] text-white">{{ tier.label }}</span>
+                <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-xs font-semibold text-emerald-200">
+                  {{ formatPercent(tier.coreItems[0]?.winRate ?? 0) }}
+                </span>
+              </div>
+
+              <p class="mt-3 text-xs uppercase tracking-[0.16em] text-slate-400">Core le plus populaire</p>
+
+              <div class="mt-4 flex flex-wrap gap-2" *ngIf="tier.coreItems[0] as coreBuild; else emptyTierPreview">
+                <span
+                  *ngFor="let item of coreBuild.items | slice: 0 : 4; trackBy: itemTrackBy"
+                  class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-100"
+                >
+                  <img [src]="item.imageUrl" [alt]="item.name" class="h-6 w-6 rounded-lg border border-white/10 object-cover" />
+                  {{ formatItemLabel(item) }}
+                </span>
+              </div>
+
+              <ng-template #emptyTierPreview>
+                <p class="mt-4 text-sm text-slate-400">Pas assez de data pour ce palier.</p>
+              </ng-template>
+            </button>
+          </div>
+
+          <p *ngIf="builds.unavailableTiers.length > 0" class="mt-4 text-xs leading-6 text-slate-400">
+            Certains paliers n'ont pas pu etre charges: {{ builds.unavailableTiers.join(', ') }}.
+          </p>
+        </article>
+
+        <article *ngIf="selectedTier() as tier" class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 backdrop-blur-xl">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.26em] text-sky-300/80">Tier actif</p>
+              <h2 class="mt-3 font-display text-2xl font-bold text-white sm:text-3xl">{{ tier.label }}</h2>
+              <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                Le detail ci-dessous montre les items de depart, le core build principal et les items les plus joues pour ce
+                palier.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200">
+                Queue {{ builds.queue }}
+              </span>
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200">
+                Maj {{ builds.updatedAt | date: 'short' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-6 grid gap-6 xl:grid-cols-3">
+            <section class="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">Start</p>
+              <h3 class="mt-3 text-xl font-semibold text-white">Items de depart</h3>
+              <p class="mt-2 text-sm leading-6 text-slate-400">Les ouvertures les plus jouees pour lancer la lane ou la jungle.</p>
+
+              <div class="mt-5 grid gap-3">
+                <article
+                  *ngFor="let row of tier.startingItems; trackBy: rowTrackBy"
+                  class="rounded-[1.4rem] border border-white/10 bg-slate-950/60 p-4"
+                >
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      *ngFor="let item of row.items; trackBy: itemTrackBy"
+                      class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-100"
+                    >
+                      <img [src]="item.imageUrl" [alt]="item.name" class="h-8 w-8 rounded-xl border border-white/10 object-cover" />
+                      {{ formatItemLabel(item) }}
+                    </span>
+                  </div>
+
+                  <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                      <div class="text-[11px] uppercase tracking-[0.16em] text-slate-400">Popularite</div>
+                      <div class="mt-1 text-lg font-semibold text-white">{{ formatPercent(row.popularity) }}</div>
+                    </div>
+                    <div class="rounded-2xl border border-emerald-400/15 bg-emerald-400/10 px-3 py-3">
+                      <div class="text-[11px] uppercase tracking-[0.16em] text-emerald-200/80">Winrate</div>
+                      <div class="mt-1 text-lg font-semibold text-emerald-100">{{ formatPercent(row.winRate) }}</div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">Core</p>
+              <h3 class="mt-3 text-xl font-semibold text-white">Core build</h3>
+              <p class="mt-2 text-sm leading-6 text-slate-400">Les enchainements d'items qui reviennent le plus souvent dans ce palier.</p>
+
+              <div class="mt-5 grid gap-3">
+                <article
+                  *ngFor="let row of tier.coreItems; trackBy: rowTrackBy"
+                  class="rounded-[1.4rem] border border-white/10 bg-slate-950/60 p-4"
+                >
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      *ngFor="let item of row.items; trackBy: itemTrackBy"
+                      class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-100"
+                    >
+                      <img [src]="item.imageUrl" [alt]="item.name" class="h-8 w-8 rounded-xl border border-white/10 object-cover" />
+                      {{ formatItemLabel(item) }}
+                    </span>
+                  </div>
+
+                  <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                      <div class="text-[11px] uppercase tracking-[0.16em] text-slate-400">Popularite</div>
+                      <div class="mt-1 text-lg font-semibold text-white">{{ formatPercent(row.popularity) }}</div>
+                    </div>
+                    <div class="rounded-2xl border border-emerald-400/15 bg-emerald-400/10 px-3 py-3">
+                      <div class="text-[11px] uppercase tracking-[0.16em] text-emerald-200/80">Winrate</div>
+                      <div class="mt-1 text-lg font-semibold text-emerald-100">{{ formatPercent(row.winRate) }}</div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-5">
+              <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300/80">Top Items</p>
+              <h3 class="mt-3 text-xl font-semibold text-white">Items les plus joues</h3>
+              <p class="mt-2 text-sm leading-6 text-slate-400">Un bon raccourci pour voir les priorites meta du palier selectionne.</p>
+
+              <div class="mt-5 grid gap-3">
+                <article
+                  *ngFor="let row of tier.topItems; trackBy: rowTrackBy"
+                  class="rounded-[1.4rem] border border-white/10 bg-slate-950/60 p-4"
+                >
+                  <ng-container *ngIf="row.items[0] as topItem">
+                    <div class="flex items-center justify-between gap-4">
+                      <div class="flex min-w-0 items-center gap-3">
+                        <img
+                          [src]="topItem.imageUrl"
+                          [alt]="topItem.name"
+                          class="h-12 w-12 rounded-2xl border border-white/10 object-cover shadow-lg shadow-black/20"
+                        />
+                        <div class="min-w-0">
+                          <div class="truncate text-sm font-semibold text-white">{{ formatItemLabel(topItem) }}</div>
+                          <div class="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">Item meta</div>
+                        </div>
+                      </div>
+
+                      <div class="text-right">
+                        <div class="text-xs uppercase tracking-[0.16em] text-slate-400">Popularite</div>
+                        <div class="mt-1 text-base font-semibold text-white">{{ formatPercent(row.popularity) }}</div>
+                      </div>
+                    </div>
+
+                    <div class="mt-4 rounded-2xl border border-emerald-400/15 bg-emerald-400/10 px-3 py-3">
+                      <div class="text-[11px] uppercase tracking-[0.16em] text-emerald-200/80">Winrate</div>
+                      <div class="mt-1 text-lg font-semibold text-emerald-100">{{ formatPercent(row.winRate) }}</div>
+                    </div>
+                  </ng-container>
+                </article>
+              </div>
+            </section>
+          </div>
+        </article>
+      </section>
+    </ng-container>
+  </div>
+</main>

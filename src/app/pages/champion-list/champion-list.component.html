@@ -1,0 +1,125 @@
+<main class="relative isolate min-h-screen overflow-hidden">
+  <div class="absolute inset-0 -z-10">
+    <div class="absolute left-1/2 top-24 h-80 w-80 -translate-x-[140%] rounded-full bg-cyan-400/20 blur-3xl"></div>
+    <div class="absolute right-0 top-10 h-96 w-96 -translate-x-10 rounded-full bg-indigo-500/20 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/2 h-72 w-[32rem] -translate-x-1/2 rounded-full bg-sky-500/10 blur-3xl"></div>
+  </div>
+
+  <section class="mx-auto flex min-h-screen w-full max-w-6xl items-center px-6 py-16 sm:px-8 lg:px-12">
+    <div class="grid w-full gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+      <div class="space-y-8">
+        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-sky-200/80 backdrop-blur">
+          League of Legends
+        </div>
+
+        <div class="space-y-5">
+          <h1 class="max-w-3xl font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl">
+            Trouve un champion en
+            <span class="bg-gradient-to-r from-cyan-300 via-sky-400 to-indigo-400 bg-clip-text text-transparent">
+              temps reel
+            </span>
+          </h1>
+
+          <p class="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+            La home est maintenant focalisee sur une seule action: taper un nom, voir le menu deroulant apparaitre
+            instantanement, puis ouvrir la fiche detail du champion choisi.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-300">
+          <span class="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1">Recherche live</span>
+          <span class="rounded-full border border-indigo-400/20 bg-indigo-400/10 px-3 py-1">Navigation detail</span>
+          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1" *ngIf="!loading()">
+            {{ indexedCount() }} champions indexes
+          </span>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-2xl shadow-sky-950/30 backdrop-blur-xl sm:p-7">
+          <div class="space-y-5">
+            <div class="space-y-2">
+              <p class="text-sm font-semibold uppercase tracking-[0.22em] text-sky-300/80">Champion Search</p>
+              <h2 class="font-display text-2xl font-bold text-white sm:text-3xl">Recherche rapide</h2>
+              <p class="text-sm leading-7 text-slate-400">
+                Tape les premieres lettres du champion. Clique une suggestion pour ouvrir sa page detail.
+              </p>
+            </div>
+
+            <div class="relative">
+              <div class="group flex items-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 shadow-lg shadow-black/10 transition focus-within:border-sky-400/50 focus-within:bg-white/8">
+                <svg class="mr-3 h-5 w-5 text-slate-400 transition group-focus-within:text-sky-300" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M14.1667 14.1667L18.3334 18.3334" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path>
+                  <circle cx="8.75" cy="8.75" r="5.41667" stroke="currentColor" stroke-width="1.75"></circle>
+                </svg>
+
+                <input
+                  type="text"
+                  name="query"
+                  [ngModel]="query()"
+                  (ngModelChange)="query.set($event)"
+                  (focus)="onSearchFocus()"
+                  (blur)="onSearchBlur()"
+                  (keydown.enter)="openFirstSuggestion()"
+                  autocomplete="off"
+                  placeholder="Ex: Ahri, Lux, Jinx..."
+                  class="w-full border-0 bg-transparent text-base text-white outline-none placeholder:text-slate-500"
+                />
+
+                <button
+                  type="button"
+                  *ngIf="query()"
+                  (click)="clearQuery()"
+                  class="ml-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-slate-300 transition hover:bg-white/15 hover:text-white"
+                  aria-label="Effacer la recherche"
+                >
+                  x
+                </button>
+              </div>
+
+              <div
+                *ngIf="showSuggestions()"
+                class="absolute inset-x-0 top-[calc(100%+0.75rem)] z-20 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
+              >
+                <button
+                  type="button"
+                  *ngFor="let champion of suggestions(); trackBy: championTrackBy"
+                  (mousedown)="openChampionDetail(champion.id)"
+                  class="flex w-full items-center gap-4 rounded-2xl px-3 py-3 text-left transition hover:bg-white/6"
+                >
+                  <img
+                    [src]="champion.imageUrl"
+                    [alt]="champion.name"
+                    loading="lazy"
+                    class="h-14 w-14 rounded-2xl border border-white/10 object-cover"
+                  />
+
+                  <div class="min-w-0 flex-1">
+                    <div class="truncate text-base font-semibold text-white">{{ champion.name }}</div>
+                    <div class="truncate text-sm text-slate-400">{{ champion.title }}</div>
+                  </div>
+
+                  <div class="hidden text-xs uppercase tracking-[0.18em] text-sky-300/70 sm:block">
+                    {{ champion.tags.join(' / ') }}
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300" *ngIf="loading()">
+              Chargement du catalogue des champions...
+            </div>
+
+            <div class="rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" *ngIf="error()">
+              {{ error() }}
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-slate-400">
+              Appuie sur <span class="font-semibold text-white">Entree</span> pour ouvrir la premiere suggestion, ou clique directement sur le champion voulu.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

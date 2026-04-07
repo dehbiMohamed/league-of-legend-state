@@ -1,29 +1,41 @@
 # League of Legend State (Angular)
 
-Premier jet en Angular pour consulter des stats League of Legends via l'API officielle Riot.
+Version actuelle du front: catalogue de champions League of Legends.
 
 ## Lancer le projet
 
-1. Installer les dépendances:
+1. Installer les dependances:
    ```bash
    npm install
    ```
-2. Définir la clé API Riot:
-   ```bash
-   export RIOT_API_KEY="RGAPI-..."
-   ```
-3. Démarrer le proxy Riot:
-   ```bash
-   npm run proxy
-   ```
-4. Dans un autre terminal, lancer Angular:
+2. Lancer le front Angular:
    ```bash
    npm start
    ```
 
-## Endpoints proxy
+L'ecran principal charge les champions directement depuis Data Dragon, donc aucune cle Riot API n'est necessaire pour cette partie.
+
+## Donnees champions
+
+Le front consomme:
+
+- `GET https://ddragon.leagueoflegends.com/api/versions.json`
+- `GET https://ddragon.leagueoflegends.com/cdn/<version>/data/fr_FR/champion.json`
+
+## Proxy Riot
+
+Le proxy Node est toujours present si tu veux ensuite revenir sur des donnees joueur.
+
+1. Definir la cle API Riot:
+   ```bash
+   export RIOT_API_KEY="RGAPI-..."
+   ```
+2. Demarrer le proxy:
+   ```bash
+   npm run proxy
+   ```
+
+Endpoints disponibles:
 
 - `GET /api/summoner/:gameName/:tagLine`
 - `GET /api/ranked/:puuid`
-
-Le front Angular interroge le proxy local pour éviter d'exposer la clé API côté client.

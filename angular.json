@@ -14,7 +14,7 @@
           "options": {
             "outputPath": "dist/league-of-legend-state",
             "index": "src/index.html",
-            "main": "src/main.ts",
+            "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
@@ -41,7 +41,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "league-of-legend-state:build"
+            "buildTarget": "league-of-legend-state:build",
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
@@ -51,5 +52,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
