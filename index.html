@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Runeterra Nexus | Premier jet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="top-nav container">
+        <div class="logo">Runeterra<span>Nexus</span></div>
+        <button class="cta">Créer un compte</button>
+      </nav>
+
+      <section class="hero-content container">
+        <p class="eyebrow">Premier jet de landing page LoL</p>
+        <h1>Domine la Faille de l'invocateur</h1>
+        <p>
+          Une maquette moderne pour un site sur League of Legends : champions, rôles,
+          objectifs, patch notes et statistiques de parties.
+        </p>
+        <div class="hero-actions">
+          <button class="cta">Commencer</button>
+          <button class="ghost">Voir les champions</button>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="section container" id="roles">
+        <h2>Choisis ton rôle</h2>
+        <p class="section-intro">Un aperçu rapide des rôles clés de League of Legends.</p>
+        <div class="role-grid">
+          <article class="card">
+            <h3>Toplane</h3>
+            <p>Tank ou bruiser, la lane des duels et du splitpush.</p>
+          </article>
+          <article class="card">
+            <h3>Jungle</h3>
+            <p>Contrôle de carte, ganks, objectifs neutres et vision.</p>
+          </article>
+          <article class="card">
+            <h3>Midlane</h3>
+            <p>Mages et assassins capables de roam sur toute la map.</p>
+          </article>
+          <article class="card">
+            <h3>Botlane</h3>
+            <p>Carry principal en teamfight avec son support dédié.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-dark" id="champions">
+        <div class="container">
+          <h2>Champions populaires</h2>
+          <div class="filters" role="tablist" aria-label="Filtres de rôle">
+            <button class="filter active" data-role="all">Tous</button>
+            <button class="filter" data-role="mage">Mages</button>
+            <button class="filter" data-role="assassin">Assassins</button>
+            <button class="filter" data-role="tank">Tanks</button>
+          </div>
+          <div id="champion-list" class="champion-grid"></div>
+        </div>
+      </section>
+
+      <section class="section container" id="roadmap">
+        <h2>Roadmap du site (idées)</h2>
+        <ol class="timeline">
+          <li>Ajouter une page de builds par champion.</li>
+          <li>Intégrer un suivi de match history via API Riot.</li>
+          <li>Créer un espace d'actualité avec les derniers patchs.</li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Concept fan-made inspiré de League of Legends · Riot Games ©</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
